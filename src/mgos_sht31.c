@@ -195,7 +195,7 @@ bool mgos_sht31_getStats(struct mgos_sht31 *sensor, struct mgos_sht31_stats *sta
   return true;
 }
 
-bool mgos_sht31_i2c_init(void) {
+bool mgos_sht31_mongoose_os_lib_init(void) {
   return true;
 }
 
