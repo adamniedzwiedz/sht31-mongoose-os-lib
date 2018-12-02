@@ -23,19 +23,23 @@
 
 // Private functions follow
 static bool mgos_sht31_cmd(struct mgos_sht31 *sensor, uint16_t cmd) {
+  LOG(LL_INFO, ("1\r\n"));
   uint8_t data[2];
-
+  LOG(LL_INFO, ("2\r\n"));
   if (!sensor || !sensor->i2c) {
+    LOG(LL_INFO, ("sensor is NULL\r\n"));
     return false;
   }
-
+  LOG(LL_INFO, ("3\r\n"));
   data[0] = cmd >> 8;
   data[1] = cmd & 0xFF;
+  LOG(LL_INFO, ("4\r\n"));
   if (!mgos_i2c_write(sensor->i2c, sensor->i2caddr, data, 2, true)) {
     LOG(LL_ERROR, ("I2C=0x%02x cmd=%u (0x%04x) write error", sensor->i2caddr, cmd, cmd));
     return false;
   }
-  LOG(LL_DEBUG, ("I2C=0x%02x cmd=%u (0x%04x) write success", sensor->i2caddr, cmd, cmd));
+  LOG(LL_INFO, ("5\r\n"));
+  LOG(LL_INFO, ("I2C=0x%02x cmd=%u (0x%04x) write success", sensor->i2caddr, cmd, cmd));
 
   return true;
 }
@@ -76,31 +80,41 @@ static uint16_t mgos_sht31_status(struct mgos_sht31 *sensor) {
 
 // Public functions follow
 struct mgos_sht31 *mgos_sht31_create(struct mgos_i2c *i2c, uint8_t i2caddr) {
+  LOG(LL_INFO, ("1\r\n"));
   struct mgos_sht31 *sensor;
   uint16_t           status0, status1, status2;
 
+  LOG(LL_INFO, ("2\r\n"));
   if (!i2c) {
+    LOG(LL_INFO, ("i2c NULL\r\n"));
     return NULL;
   }
-
+  LOG(LL_INFO, ("3\r\n"));
   sensor = calloc(1, sizeof(struct mgos_sht31));
   if (!sensor) {
+    LOG(LL_INFO, ("sensor not created\r\n"));
     return NULL;
   }
-
+  LOG(LL_INFO, ("4\r\n"));
   memset(sensor, 0, sizeof(struct mgos_sht31));
+  LOG(LL_INFO, ("5\r\n"));
   sensor->i2caddr = i2caddr;
+  LOG(LL_INFO, ("6\r\n"));
   sensor->i2c     = i2c;
-
+  LOG(LL_INFO, ("7\r\n"));
   mgos_sht31_cmd(sensor, MGOS_SHT31_SOFTRESET);
-
+  LOG(LL_INFO, ("8\r\n"));
   // Toggle heater on and off, which shows up in status register bit 13 (0=Off, 1=On)
   status0 = mgos_sht31_status(sensor); // heater is off, bit13 is 0
+  LOG(LL_INFO, ("9\r\n"));
   mgos_sht31_cmd(sensor, MGOS_SHT31_HEATEREN);
+  LOG(LL_INFO, ("10\r\n"));
   status1 = mgos_sht31_status(sensor); // heater is on, bit13 is 1
+  LOG(LL_INFO, ("11\r\n"));
   mgos_sht31_cmd(sensor, MGOS_SHT31_HEATERDIS);
+  LOG(LL_INFO, ("12\r\n"));
   status2 = mgos_sht31_status(sensor); // heater is off, bit13 is 0
-
+  LOG(LL_INFO, ("13\r\n"));
   if (((status0 & 0x2000) == 0) && ((status1 & 0x2000) != 0) && ((status2 & 0x2000) == 0)) {
     LOG(LL_INFO, ("SHT31 created at I2C 0x%02x", i2caddr));
     return sensor;
